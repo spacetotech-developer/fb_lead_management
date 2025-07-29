@@ -40,10 +40,10 @@ app.post('/webhook/facebook', async (req, res) => {
       for (const change of entry.changes) {
         if (change.field === 'leadgen') {
           const leadId = change.value.leadgen_id;
-
+          const fbleadId = "61578767666649"
           try {
             const response = await axios.get(
-              `https://graph.facebook.com/v19.0/${leadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
+              `https://graph.facebook.com/v19.0/${leadId?leadId:fbleadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
             );
 
             const leadData = response.data;
