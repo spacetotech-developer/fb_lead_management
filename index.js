@@ -32,41 +32,106 @@ app.get('/webhook/facebook', (req, res) => {
 });
 
 // Webhook Listener for Leads
+// app.post('/webhook/facebook', async (req, res) => {
+//   // const body = req.body;
+//           const fbleadId = "701545133047863"
+//       try {
+//             const response = await axios.get(
+//               `https://graph.facebook.com/v23.0/${fbleadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
+//             );
+//             console.log('jjjjjjjjjjjj')
+//             const leadData = response.data;
+
+//             await Lead.create({
+//               leadId: leadData.id,
+//               formId: leadData.form_id,
+//               createdTime: leadData.created_time,
+//               fieldData: leadData.field_data
+//             });
+
+//             console.log('✅ Lead saved:', leadData.id);
+//           } catch (err) {
+//             if (err.response) {
+//               console.error('❌ Facebook API Error:', err.response.data); // Print the real error
+//             } else {
+//               console.error('❌ Unknown Error:', err.message);
+//             }
+//           }
+
+//   // if (body.object === 'page') {
+//   //   for (const entry of body.entry) {
+//   //     for (const change of entry.changes) {
+//   //       if (change.field === 'leadgen') {
+//   //         const leadId = change.value.leadgen_id;
+//   //         const fbleadId = "61578767666649"
+//   //         try {
+//   //           const response = await axios.get(
+//   //             `https://graph.facebook.com/v19.0/${leadId?leadId:fbleadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
+//   //           );
+
+//   //           const leadData = response.data;
+
+//   //           await Lead.create({
+//   //             leadId: leadData.id,
+//   //             formId: leadData.form_id,
+//   //             createdTime: leadData.created_time,
+//   //             fieldData: leadData.field_data
+//   //           });
+
+//   //           console.log('✅ Lead saved:', leadData.id);
+//   //         } catch (err) {
+//   //           console.error('❌ Error fetching/saving lead:', err.message);
+//   //         }
+//   //       }
+//   //     }
+//   //   }
+//   //   res.sendStatus(200);
+//   // } else {
+//   //   res.sendStatus(404);
+//   // }
+// });
+
 app.post('/webhook/facebook', async (req, res) => {
-  const body = req.body;
+  try {
+    const body = req.body;
 
-  if (body.object === 'page') {
-    for (const entry of body.entry) {
-      for (const change of entry.changes) {
-        if (change.field === 'leadgen') {
-          const leadId = change.value.leadgen_id;
-          const fbleadId = "61578767666649"
-          try {
-            const response = await axios.get(
-              `https://graph.facebook.com/v19.0/${leadId?leadId:fbleadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
-            );
+    // ✅ Respond immediately to Facebook to avoid timeouts
+    res.sendStatus(200);
 
-            const leadData = response.data;
+    if (body.object === 'page') {
+      for (const entry of body.entry) {
+        for (const change of entry.changes) {
+          if (change.field === 'leadgen') {
+            const leadId = change.value.leadgen_id;
 
-            await Lead.create({
-              leadId: leadData.id,
-              formId: leadData.form_id,
-              createdTime: leadData.created_time,
-              fieldData: leadData.field_data
-            });
+            try {
+              const response = await axios.get(
+                `https://graph.facebook.com/v19.0/${leadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
+              );
 
-            console.log('✅ Lead saved:', leadData.id);
-          } catch (err) {
-            console.error('❌ Error fetching/saving lead:', err.message);
+              const leadData = response.data;
+
+              await Lead.create({
+                leadId: leadData.id,
+                formId: leadData.form_id,
+                createdTime: leadData.created_time,
+                fieldData: leadData.field_data
+              });
+
+              console.log('✅ Lead saved:', leadData.id);
+            } catch (err) {
+              console.error('❌ Facebook API error:', err.response?.data || err.message);
+            }
           }
         }
       }
     }
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(404);
+  } catch (err) {
+    console.error('❌ Unexpected error:', err.message);
+    res.sendStatus(500);
   }
 });
+
 
 // Start server
 const PORT = process.env.PORT || 3000;
