@@ -94,7 +94,7 @@ app.get('/webhook/facebook', (req, res) => {
 app.post('/webhook/facebook', async (req, res) => {
   try {
     const body = req.body;
-
+    console.log("body>>>>>>",body)  
     // ✅ Respond immediately to Facebook to avoid timeouts
     res.sendStatus(200);
 
@@ -103,12 +103,12 @@ app.post('/webhook/facebook', async (req, res) => {
         for (const change of entry.changes) {
           if (change.field === 'leadgen') {
             const leadId = change.value.leadgen_id;
-
+            console.log('leadId>>>>>>>>>>',leadId);
             try {
               const response = await axios.get(
                 `https://graph.facebook.com/v19.0/${leadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
               );
-
+              
               const leadData = response.data;
 
               await Lead.create({
