@@ -106,7 +106,7 @@ app.post('/webhook/facebook', async (req, res) => {
             console.log('leadId>>>>>>>>>>',leadId);
             try {
               const response = await axios.get(
-                `https://graph.facebook.com/v19.0/${leadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
+                `https://graph.facebook.com/v23.0/${leadId}?access_token=${process.env.PAGE_ACCESS_TOKEN}`
               );
               
               const leadData = response.data;
